@@ -14,8 +14,15 @@ Provides utilities for datetime operations including:
 - get_time_delta_seconds: Calculate time differences
 """
 
-__version__ = "0.1.0"
-
+try:
+    from importlib.metadata import version as _v, PackageNotFoundError
+    try:
+        __version__ = _v("scitex-datetime")
+    except PackageNotFoundError:
+        __version__ = "0.0.0+local"
+    del _v, PackageNotFoundError
+except ImportError:  # pragma: no cover — only on ancient Pythons
+    __version__ = "0.0.0+local"
 from ._linspace import linspace
 from ._normalize_timestamp import (
     ALTERNATIVE_FORMATS,
