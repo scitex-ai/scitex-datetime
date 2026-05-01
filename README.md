@@ -41,7 +41,7 @@ print(sxd.format_for_filename(dt))   # "2026-04-27_103000"
 
 ## 1 Interfaces
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 <br>
