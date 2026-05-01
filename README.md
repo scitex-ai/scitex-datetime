@@ -10,16 +10,41 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 <!-- scitex-badges:end -->
 
+<p align="center">
+  <a href="https://scitex.ai">
+    <img src="docs/scitex-logo-blue-cropped.png" alt="SciTeX" width="400">
+  </a>
+</p>
 
-Small datetime helpers extracted from the [SciTeX](https://github.com/ywatanabe1989/scitex-python) ecosystem as a standalone package.
+<p align="center"><b>Small datetime helpers — linspace, normalize, parse, format.</b></p>
 
-## Install
+<p align="center">
+  <a href="https://scitex-datetime.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-datetime</code>
+</p>
+
+---
+
+## Installation
 
 ```bash
 pip install scitex-datetime
 ```
 
-## API
+## Quick Start
+
+```python
+import scitex_datetime as sxd
+
+dt = sxd.to_datetime("2026/04/27 10:30:00")
+print(sxd.format_for_filename(dt))   # "2026-04-27_103000"
+```
+
+## 1 Interfaces
+
+<details>
+<summary><strong>Python API</strong></summary>
+
+<br>
 
 ```python
 import scitex_datetime as sxd
@@ -40,12 +65,33 @@ sxd.format_for_filename(dt)      # "2026-04-27_103000"
 sxd.get_time_delta_seconds(dt1, dt2)
 ```
 
+</details>
+
 ## Status
 
 Standalone fork of `scitex.datetime`. The umbrella package's `scitex.datetime`
 import path is preserved via a `sys.modules`-alias bridge. `STANDARD_FORMAT`
 is read from a scitex CONFIG when available, falling back to `"%Y-%m-%d %H:%M:%S"`.
 
+## Part of SciTeX
+
+`scitex-datetime` is part of [**SciTeX**](https://scitex.ai).
+
+>Four Freedoms for Research
+>
+>0. The freedom to **run** your research anywhere — your machine, your terms.
+>1. The freedom to **study** how every step works — from raw data to final manuscript.
+>2. The freedom to **redistribute** your workflows, not just your papers.
+>3. The freedom to **modify** any module and share improvements with the community.
+>
+>AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
+
 ## License
 
 AGPL-3.0-only (see [LICENSE](./LICENSE)).
+
+---
+
+<p align="center">
+  <a href="https://scitex.ai" target="_blank"><img src="docs/scitex-icon-navy-inverted.png" alt="SciTeX" width="40"/></a>
+</p>
