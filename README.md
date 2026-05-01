@@ -77,7 +77,7 @@ is read from a scitex CONFIG when available, falling back to `"%Y-%m-%d %H:%M:%S
 
 `scitex-datetime` is part of [**SciTeX**](https://scitex.ai). Install via
 the umbrella with `pip install scitex[datetime]` to use as
-`scitex.datetime` (Python).
+`scitex.datetime` (Python) or `scitex datetime ...` (CLI).
 
 >Four Freedoms for Research
 >
