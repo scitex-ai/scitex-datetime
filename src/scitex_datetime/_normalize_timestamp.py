@@ -34,11 +34,12 @@ from typing import Union
 # Default standard format
 DEFAULT_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# Try to get standard format from config, fallback to default
+# Try to get standard format from config, fallback to default.
+# Use the standalone scitex_io peer (PA304 §3 — no umbrella imports here).
 try:
-    import scitex as stx
+    from scitex_io import load_configs as _load_configs
 
-    CONFIG = stx.io.load_configs()
+    CONFIG = _load_configs()
     STANDARD_FORMAT = (
         getattr(getattr(CONFIG, "FORMATS", None), "TIMESTAMP", None) or DEFAULT_FORMAT
     )
