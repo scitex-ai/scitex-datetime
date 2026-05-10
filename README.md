@@ -9,7 +9,7 @@
 <p align="center"><b>Small datetime helpers — linspace, normalize, parse, format.</b></p>
 
 <p align="center">
-  <a href="https://scitex-datetime.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-datetime</code>
+  <a href="https://scitex-datetime.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-datetime[all]</code>
 </p>
 
 <!-- scitex-badges:start -->
