@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.claude/
 *.egg
 .eggs/
 build/
@@ -8,6 +9,7 @@ dist/
 .pytest_cache/
 .ruff_cache/
 .coverage
+.coverage.*
 htmlcov/
 .tox/
 .mypy_cache/
@@ -18,3 +20,11 @@ docs/sphinx/_build/
 docs/sphinx/api/
 *.swp
 .DS_Store
+
+# .scitex/ is runtime state for local tooling, but the audit-whitelist
+# config under .scitex/dev/config.yaml needs to ship so CI sees the same
+# whitelist as local. Switch to file-level exclusion + negation.
+.scitex/*
+!.scitex/dev/
+.scitex/dev/*
+!.scitex/dev/config.yaml

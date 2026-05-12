@@ -36,15 +36,22 @@ DEFAULT_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Try to get standard format from config, fallback to default.
 # Use the standalone scitex_io peer (PA304 §3 — no umbrella imports here).
-try:
-    from scitex_io import load_configs as _load_configs
+# `scitex_io` is not declared in pyproject extras; the helper still gives us
+# the canonical None-on-ImportError shape so the import audit (PA-302) is happy.
+from scitex_dev import try_import_optional
 
-    CONFIG = _load_configs()
-    STANDARD_FORMAT = (
-        getattr(getattr(CONFIG, "FORMATS", None), "TIMESTAMP", None) or DEFAULT_FORMAT
-    )
-except Exception:
-    STANDARD_FORMAT = DEFAULT_FORMAT
+_load_configs = try_import_optional("scitex_io", "load_configs")
+STANDARD_FORMAT = DEFAULT_FORMAT
+if _load_configs is not None:
+    try:
+        CONFIG = _load_configs()
+        STANDARD_FORMAT = (
+            getattr(getattr(CONFIG, "FORMATS", None), "TIMESTAMP", None)
+            or DEFAULT_FORMAT
+        )
+    except Exception:
+        # load_configs may exist but raise (missing config files, etc.).
+        STANDARD_FORMAT = DEFAULT_FORMAT
 
 # Common alternative formats to try when parsing
 ALTERNATIVE_FORMATS = [
