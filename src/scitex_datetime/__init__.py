@@ -16,15 +16,19 @@ Provides utilities for datetime operations including:
 
 from __future__ import annotations
 
+# importlib.metadata is stdlib since 3.8 and `requires-python = ">=3.9"`, so
+# the only failure mode left is PackageNotFoundError (running from a source
+# checkout that was never `pip install`-ed). Mirrors the canonical
+# scitex-stats __init__.py version block.
+from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
+from importlib.metadata import version as _version
+
 try:
-    from importlib.metadata import version as _v, PackageNotFoundError
-    try:
-        __version__ = _v("scitex-datetime")
-    except PackageNotFoundError:
-        __version__ = "0.0.0+local"
-    del _v, PackageNotFoundError
-except ImportError:  # pragma: no cover — only on ancient Pythons
+    __version__ = _version("scitex-datetime")
+except _PackageNotFoundError:
     __version__ = "0.0.0+local"
+del _version, _PackageNotFoundError
+
 from ._linspace import linspace
 from ._normalize_timestamp import (
     ALTERNATIVE_FORMATS,
