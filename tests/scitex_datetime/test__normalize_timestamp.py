@@ -1,524 +1,1023 @@
 #!/usr/bin/env python3
-# Timestamp: "2026-01-05 14:30:00 (ywatanabe)"
-# File: tests/scitex/datetime/test__normalize_timestamp.py
+# Timestamp: "2026-05-18 00:00:00 (ywatanabe)"
+# File: tests/scitex_datetime/test__normalize_timestamp.py
 
 """Comprehensive tests for datetime._normalize_timestamp module"""
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 
-class TestNormalizeTimestamp:
-    """Test suite for normalize_timestamp function"""
+class TestNormalizeTimestampDatetimeToStr:
+    """normalize_timestamp(datetime, return_as='str')."""
 
-    def test_normalize_datetime_to_str(self):
-        """Test normalizing datetime object to string"""
+    def test_normalize_datetime_to_str_returns_str_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = normalize_timestamp(dt, return_as="str", normalize_utc=False)
-
+        # Assert
         assert isinstance(result, str)
+
+    def test_normalize_datetime_to_str_contains_date_portion(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
+        result = normalize_timestamp(dt, return_as="str", normalize_utc=False)
+        # Assert
         assert "2010-06-18" in result
+
+    def test_normalize_datetime_to_str_contains_time_portion(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
+        result = normalize_timestamp(dt, return_as="str", normalize_utc=False)
+        # Assert
         assert "10:15:00" in result
 
-    def test_normalize_datetime_to_datetime(self):
-        """Test normalizing datetime to datetime with UTC"""
+
+class TestNormalizeTimestampDatetimeToDatetime:
+    """normalize_timestamp(datetime, return_as='datetime')."""
+
+    def test_normalize_datetime_to_datetime_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = normalize_timestamp(dt, return_as="datetime", normalize_utc=True)
-
+        # Assert
         assert isinstance(result, datetime)
+
+    def test_normalize_datetime_to_datetime_attaches_utc_tzinfo(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
+        result = normalize_timestamp(dt, return_as="datetime", normalize_utc=True)
+        # Assert
         assert result.tzinfo == timezone.utc
 
-    def test_normalize_datetime_to_timestamp(self):
-        """Test normalizing datetime to Unix timestamp"""
+
+class TestNormalizeTimestampDatetimeToTimestamp:
+    """normalize_timestamp(datetime, return_as='timestamp')."""
+
+    def test_normalize_datetime_to_timestamp_returns_float_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        # Act
         result = normalize_timestamp(dt, return_as="timestamp")
-
+        # Assert
         assert isinstance(result, float)
+
+    def test_normalize_datetime_to_timestamp_returns_positive_value(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        dt = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        # Act
+        result = normalize_timestamp(dt, return_as="timestamp")
+        # Assert
         assert result > 0
 
-    def test_normalize_unix_timestamp(self):
-        """Test normalizing Unix timestamp"""
+
+class TestNormalizeTimestampUnixInput:
+    """normalize_timestamp accepts Unix timestamps."""
+
+    def test_normalize_unix_timestamp_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         unix_ts = 1276856100.0
+        # Act
         result = normalize_timestamp(unix_ts, return_as="datetime")
-
+        # Assert
         assert isinstance(result, datetime)
+
+    def test_normalize_unix_timestamp_attaches_utc_tzinfo(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        unix_ts = 1276856100.0
+        # Act
+        result = normalize_timestamp(unix_ts, return_as="datetime")
+        # Assert
         assert result.tzinfo == timezone.utc
 
-    def test_normalize_string_iso_format(self):
-        """Test normalizing ISO format string"""
+    def test_normalize_int_timestamp_returns_datetime_type(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        unix_ts = 1276856100
+        # Act
+        result = normalize_timestamp(unix_ts, return_as="datetime")
+        # Assert
+        assert isinstance(result, datetime)
+
+
+class TestNormalizeTimestampStringIsoFormat:
+    """normalize_timestamp handles ISO-format strings."""
+
+    def test_normalize_iso_string_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         ts_str = "2010-06-18T10:15:00"
+        # Act
         result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
-
+        # Assert
         assert isinstance(result, datetime)
+
+    def test_normalize_iso_string_parses_year_component(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
+        # Assert
         assert result.year == 2010
+
+    def test_normalize_iso_string_parses_month_component(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
+        # Assert
         assert result.month == 6
+
+    def test_normalize_iso_string_parses_day_component(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
+        # Assert
         assert result.day == 18
 
-    def test_normalize_string_with_microseconds(self):
-        """Test normalizing string with microseconds"""
+
+class TestNormalizeTimestampMicroseconds:
+    """normalize_timestamp preserves microseconds from strings."""
+
+    def test_normalize_string_with_microseconds_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         ts_str = "2010-06-18 10:15:00.123456"
+        # Act
         result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
-
+        # Assert
         assert isinstance(result, datetime)
-        assert result.microsecond == 123456
 
-    def test_normalize_various_string_formats(self):
-        """Test normalizing various string formats"""
+    def test_normalize_string_with_microseconds_preserves_microsecond_value(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
-        formats = [
+        ts_str = "2010-06-18 10:15:00.123456"
+        # Act
+        result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
+        # Assert
+        assert result.microsecond == 123456
+
+
+class TestNormalizeTimestampVariousFormats:
+    """normalize_timestamp parses several common formats."""
+
+    @pytest.mark.parametrize(
+        "ts_str",
+        [
             "2010-06-18 10:15:00",
             "2010/06/18 10:15:00",
             "18-06-2010 10:15:00",
             "18/06/2010 10:15:00",
-        ]
+        ],
+    )
+    def test_normalize_various_string_formats_returns_datetime_type(self, ts_str):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
 
-        for ts_str in formats:
-            result = normalize_timestamp(
-                ts_str, return_as="datetime", normalize_utc=False
-            )
-            assert isinstance(result, datetime)
+        # Act
+        result = normalize_timestamp(ts_str, return_as="datetime", normalize_utc=False)
+        # Assert
+        assert isinstance(result, datetime)
 
-    def test_normalize_without_utc(self):
-        """Test normalize_utc=False preserves naive datetime"""
+
+class TestNormalizeTimestampUtcHandling:
+    """normalize_timestamp UTC normalization behaviour."""
+
+    def test_normalize_without_utc_preserves_naive_datetime(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = normalize_timestamp(dt, return_as="datetime", normalize_utc=False)
-
+        # Assert
         assert result.tzinfo is None
 
-    def test_normalize_with_utc_aware_input(self):
-        """Test normalizing timezone-aware datetime to UTC"""
+    def test_normalize_aware_input_to_utc_returns_utc_tzinfo(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
-        # Create a datetime with a non-UTC timezone
         dt = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone(timedelta(hours=5)))
+        # Act
         result = normalize_timestamp(dt, return_as="datetime", normalize_utc=True)
-
+        # Assert
         assert result.tzinfo == timezone.utc
-        # Should be 5 hours earlier in UTC
+
+    def test_normalize_aware_input_to_utc_shifts_hour_by_offset(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        dt = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone(timedelta(hours=5)))
+        # Act
+        result = normalize_timestamp(dt, return_as="datetime", normalize_utc=True)
+        # Assert
         assert result.hour == 5
 
-    def test_normalize_invalid_return_as(self):
-        """Test that invalid return_as raises ValueError"""
+
+class TestNormalizeTimestampInvalidReturnAs:
+    """normalize_timestamp rejects invalid return_as."""
+
+    def test_normalize_invalid_return_as_raises_valueerror(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
-
+        # Act
+        # Assert
         with pytest.raises(ValueError, match="return_as must be"):
             normalize_timestamp(dt, return_as="invalid")
 
-    def test_normalize_int_timestamp(self):
-        """Test normalizing integer Unix timestamp"""
-        from scitex_datetime import normalize_timestamp
 
-        unix_ts = 1276856100
-        result = normalize_timestamp(unix_ts, return_as="datetime")
+class TestToDatetimeFromDatetime:
+    """to_datetime returns the input datetime unchanged."""
 
-        assert isinstance(result, datetime)
-
-
-class TestToDatetime:
-    """Test suite for to_datetime function"""
-
-    def test_to_datetime_from_datetime(self):
-        """Test to_datetime with datetime input"""
+    def test_to_datetime_from_datetime_returns_same_object(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = to_datetime(dt)
+        # Assert
+        assert result is dt
 
-        assert result is dt  # Should return same object
 
-    def test_to_datetime_from_int(self):
-        """Test to_datetime with integer Unix timestamp"""
+class TestToDatetimeFromInt:
+    """to_datetime converts integer Unix timestamps."""
+
+    def test_to_datetime_from_int_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         unix_ts = 1276856100
+        # Act
         result = to_datetime(unix_ts)
-
+        # Assert
         assert isinstance(result, datetime)
+
+    def test_to_datetime_from_int_attaches_utc_tzinfo(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        unix_ts = 1276856100
+        # Act
+        result = to_datetime(unix_ts)
+        # Assert
         assert result.tzinfo == timezone.utc
 
-    def test_to_datetime_from_float(self):
-        """Test to_datetime with float Unix timestamp"""
+
+class TestToDatetimeFromFloat:
+    """to_datetime converts floating-point Unix timestamps."""
+
+    def test_to_datetime_from_float_returns_datetime_type(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         unix_ts = 1276856100.123456
+        # Act
         result = to_datetime(unix_ts)
-
+        # Assert
         assert isinstance(result, datetime)
+
+    def test_to_datetime_from_float_attaches_utc_tzinfo(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        unix_ts = 1276856100.123456
+        # Act
+        result = to_datetime(unix_ts)
+        # Assert
         assert result.tzinfo == timezone.utc
 
-    def test_to_datetime_from_string_iso(self):
-        """Test to_datetime with ISO format string"""
+
+class TestToDatetimeFromStringIso:
+    """to_datetime parses ISO-format strings into components."""
+
+    def test_to_datetime_from_iso_string_parses_year_component(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         ts_str = "2010-06-18T10:15:00"
+        # Act
         result = to_datetime(ts_str)
-
+        # Assert
         assert result.year == 2010
+
+    def test_to_datetime_from_iso_string_parses_month_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.month == 6
+
+    def test_to_datetime_from_iso_string_parses_day_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.day == 18
+
+    def test_to_datetime_from_iso_string_parses_hour_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.hour == 10
+
+    def test_to_datetime_from_iso_string_parses_minute_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18T10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.minute == 15
 
-    def test_to_datetime_from_string_standard(self):
-        """Test to_datetime with standard format string"""
+
+class TestToDatetimeFromStringStandard:
+    """to_datetime parses standard-format strings."""
+
+    def test_to_datetime_from_standard_string_parses_year_component(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         ts_str = "2010-06-18 10:15:00"
+        # Act
         result = to_datetime(ts_str)
-
+        # Assert
         assert result.year == 2010
+
+    def test_to_datetime_from_standard_string_parses_month_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18 10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.month == 6
+
+    def test_to_datetime_from_standard_string_parses_day_component(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        ts_str = "2010-06-18 10:15:00"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
         assert result.day == 18
 
-    def test_to_datetime_nanosecond_truncation(self):
-        """Test that nanosecond precision is truncated to microseconds"""
+
+class TestToDatetimeNanosecondTruncation:
+    """to_datetime truncates nanosecond input to microseconds."""
+
+    def test_to_datetime_nanosecond_input_truncates_to_six_digit_microseconds(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
         ts_str = "2010-06-18 10:15:00.123456789"
+        # Act
         result = to_datetime(ts_str)
-
+        # Assert
         assert result.microsecond == 123456
 
-    def test_to_datetime_invalid_string(self):
-        """Test that invalid string raises ValueError"""
+
+class TestToDatetimeInvalidInputs:
+    """to_datetime rejects unparseable / unsupported inputs."""
+
+    def test_to_datetime_invalid_string_raises_valueerror(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
+        # Act
+        # Assert
         with pytest.raises(ValueError, match="Could not parse timestamp string"):
             to_datetime("not-a-valid-timestamp")
 
-    def test_to_datetime_invalid_type(self):
-        """Test that invalid type raises TypeError"""
+    def test_to_datetime_invalid_type_raises_typeerror(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
+        # Act
+        # Assert
         with pytest.raises(TypeError, match="timestamp must be"):
             to_datetime([2010, 6, 18])
 
-    def test_to_datetime_alternative_formats(self):
-        """Test parsing various alternative formats"""
-        from scitex_datetime import to_datetime
 
-        test_cases = [
+class TestToDatetimeAlternativeFormats:
+    """to_datetime parses every documented alternative format."""
+
+    @pytest.mark.parametrize(
+        "ts_str,year,month,day",
+        [
             ("2010-06-18T10:15:00.123456", 2010, 6, 18),
             ("2010/06/18 10:15:00", 2010, 6, 18),
             ("18-06-2010 10:15:00", 2010, 6, 18),
             ("18/06/2010 10:15:00", 2010, 6, 18),
-            ("18/06/2010, 10:15:00", 2010, 6, 18),  # REC_START format
+            ("18/06/2010, 10:15:00", 2010, 6, 18),
             ("20100618 10:15:00", 2010, 6, 18),
             ("2010-06-18_10:15:00", 2010, 6, 18),
-        ]
+        ],
+    )
+    def test_to_datetime_alternative_format_parses_year_component(
+        self, ts_str, year, month, day
+    ):
+        # Arrange
+        from scitex_datetime import to_datetime
 
-        for ts_str, year, month, day in test_cases:
-            result = to_datetime(ts_str)
-            assert result.year == year, f"Failed for {ts_str}"
-            assert result.month == month, f"Failed for {ts_str}"
-            assert result.day == day, f"Failed for {ts_str}"
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
+        assert result.year == year, f"Failed for {ts_str}"
+
+    @pytest.mark.parametrize(
+        "ts_str,year,month,day",
+        [
+            ("2010-06-18T10:15:00.123456", 2010, 6, 18),
+            ("2010/06/18 10:15:00", 2010, 6, 18),
+            ("18-06-2010 10:15:00", 2010, 6, 18),
+            ("18/06/2010 10:15:00", 2010, 6, 18),
+            ("18/06/2010, 10:15:00", 2010, 6, 18),
+            ("20100618 10:15:00", 2010, 6, 18),
+            ("2010-06-18_10:15:00", 2010, 6, 18),
+        ],
+    )
+    def test_to_datetime_alternative_format_parses_month_component(
+        self, ts_str, year, month, day
+    ):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
+        assert result.month == month, f"Failed for {ts_str}"
+
+    @pytest.mark.parametrize(
+        "ts_str,year,month,day",
+        [
+            ("2010-06-18T10:15:00.123456", 2010, 6, 18),
+            ("2010/06/18 10:15:00", 2010, 6, 18),
+            ("18-06-2010 10:15:00", 2010, 6, 18),
+            ("18/06/2010 10:15:00", 2010, 6, 18),
+            ("18/06/2010, 10:15:00", 2010, 6, 18),
+            ("20100618 10:15:00", 2010, 6, 18),
+            ("2010-06-18_10:15:00", 2010, 6, 18),
+        ],
+    )
+    def test_to_datetime_alternative_format_parses_day_component(
+        self, ts_str, year, month, day
+    ):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        # Act
+        result = to_datetime(ts_str)
+        # Assert
+        assert result.day == day, f"Failed for {ts_str}"
 
 
 class TestValidateTimestampFormat:
-    """Test suite for validate_timestamp_format function"""
+    """validate_timestamp_format checks the standard format."""
 
-    def test_validate_valid_format(self):
-        """Test validation of correctly formatted string"""
+    def test_validate_valid_format_returns_true(self):
+        # Arrange
         from scitex_datetime import STANDARD_FORMAT, validate_timestamp_format
 
-        # Create a string in the standard format
         dt = datetime(2010, 6, 18, 10, 15, 0)
         ts_str = dt.strftime(STANDARD_FORMAT)
+        # Act
+        result = validate_timestamp_format(ts_str)
+        # Assert
+        assert result is True
 
-        assert validate_timestamp_format(ts_str) is True
-
-    def test_validate_invalid_format(self):
-        """Test validation of incorrectly formatted string"""
+    def test_validate_invalid_format_returns_false(self):
+        # Arrange
         from scitex_datetime import validate_timestamp_format
 
-        assert validate_timestamp_format("not-a-timestamp") is False
+        # Act
+        result = validate_timestamp_format("not-a-timestamp")
+        # Assert
+        assert result is False
 
-    def test_validate_wrong_format(self):
-        """Test validation of timestamp in wrong format"""
+    def test_validate_iso_format_returns_false(self):
+        # Arrange
         from scitex_datetime import validate_timestamp_format
 
-        # ISO format might not match standard format
-        assert validate_timestamp_format("2010-06-18T10:15:00") is False
+        # Act
+        result = validate_timestamp_format("2010-06-18T10:15:00")
+        # Assert
+        assert result is False
 
-    def test_validate_none_input(self):
-        """Test validation with None input"""
+    def test_validate_none_input_returns_false(self):
+        # Arrange
         from scitex_datetime import validate_timestamp_format
 
-        assert validate_timestamp_format(None) is False
+        # Act
+        result = validate_timestamp_format(None)
+        # Assert
+        assert result is False
 
 
 class TestFormatForFilename:
-    """Test suite for format_for_filename function"""
+    """format_for_filename produces filename-safe timestamps."""
 
-    def test_format_datetime_for_filename(self):
-        """Test formatting datetime for filename"""
+    def test_format_datetime_for_filename_returns_expected_string(self):
+        # Arrange
         from scitex_datetime import format_for_filename
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = format_for_filename(dt)
-
+        # Assert
         assert result == "20100618_101500"
+
+    def test_format_datetime_for_filename_contains_no_spaces(self):
+        # Arrange
+        from scitex_datetime import format_for_filename
+
+        dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
+        result = format_for_filename(dt)
+        # Assert
         assert " " not in result
+
+    def test_format_datetime_for_filename_contains_no_colons(self):
+        # Arrange
+        from scitex_datetime import format_for_filename
+
+        dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
+        result = format_for_filename(dt)
+        # Assert
         assert ":" not in result
 
-    def test_format_string_for_filename(self):
-        """Test formatting string timestamp for filename"""
+    def test_format_string_for_filename_returns_expected_string(self):
+        # Arrange
         from scitex_datetime import format_for_filename
 
         ts_str = "2010-06-18 10:15:00"
+        # Act
         result = format_for_filename(ts_str)
-
+        # Assert
         assert result == "20100618_101500"
 
-    def test_format_for_filename_no_special_chars(self):
-        """Test that filename format has no special characters"""
+    def test_format_for_filename_contains_only_digits_and_underscore(self):
+        # Arrange
         from scitex_datetime import format_for_filename
 
         dt = datetime(2010, 6, 18, 10, 15, 30)
+        # Act
         result = format_for_filename(dt)
-
-        # Should only contain digits and underscore
+        # Assert
         assert all(c.isdigit() or c == "_" for c in result)
 
 
 class TestFormatForDisplay:
-    """Test suite for format_for_display function"""
+    """format_for_display produces human-readable strings."""
 
-    def test_format_datetime_for_display(self):
-        """Test formatting datetime for display"""
+    def test_format_datetime_for_display_returns_expected_string(self):
+        # Arrange
         from scitex_datetime import format_for_display
 
         dt = datetime(2010, 6, 18, 10, 15, 0)
+        # Act
         result = format_for_display(dt)
-
+        # Assert
         assert result == "2010-06-18 10:15:00"
 
-    def test_format_string_for_display(self):
-        """Test formatting string timestamp for display"""
+    def test_format_string_for_display_normalises_separator(self):
+        # Arrange
         from scitex_datetime import format_for_display
 
         ts_str = "2010/06/18 10:15:00"
+        # Act
         result = format_for_display(ts_str)
-
+        # Assert
         assert result == "2010-06-18 10:15:00"
 
-    def test_format_for_display_readable(self):
-        """Test that display format is human-readable"""
+    def test_format_for_display_contains_space_between_date_and_time(self):
+        # Arrange
         from scitex_datetime import format_for_display
 
         dt = datetime(2010, 6, 18, 10, 15, 30)
+        # Act
         result = format_for_display(dt)
-
-        # Should have readable date and time separated by space
+        # Assert
         assert " " in result
+
+    def test_format_for_display_contains_date_separator(self):
+        # Arrange
+        from scitex_datetime import format_for_display
+
+        dt = datetime(2010, 6, 18, 10, 15, 30)
+        # Act
+        result = format_for_display(dt)
+        # Assert
         assert "-" in result
+
+    def test_format_for_display_contains_time_separator(self):
+        # Arrange
+        from scitex_datetime import format_for_display
+
+        dt = datetime(2010, 6, 18, 10, 15, 30)
+        # Act
+        result = format_for_display(dt)
+        # Assert
         assert ":" in result
 
 
 class TestParsePatientRecordingStartFormat:
-    """Test suite for parse_patient_recording_start_format function"""
+    """parse_patient_recording_start_format handles REC_START format."""
 
-    def test_parse_rec_start_format(self):
-        """Test parsing REC_START format"""
+    def test_parse_rec_start_format_parses_year(self):
+        # Arrange
         from scitex_datetime import parse_patient_recording_start_format
 
         ts_str = "10/06/2010, 07:40:34"
+        # Act
         result = parse_patient_recording_start_format(ts_str)
-
+        # Assert
         assert result.year == 2010
-        assert result.month == 6
-        assert result.day == 10
-        assert result.hour == 7
-        assert result.minute == 40
-        assert result.second == 34
 
-    def test_parse_rec_start_invalid_format(self):
-        """Test that invalid REC_START format raises ValueError"""
+    def test_parse_rec_start_format_parses_month(self):
+        # Arrange
         from scitex_datetime import parse_patient_recording_start_format
 
+        ts_str = "10/06/2010, 07:40:34"
+        # Act
+        result = parse_patient_recording_start_format(ts_str)
+        # Assert
+        assert result.month == 6
+
+    def test_parse_rec_start_format_parses_day(self):
+        # Arrange
+        from scitex_datetime import parse_patient_recording_start_format
+
+        ts_str = "10/06/2010, 07:40:34"
+        # Act
+        result = parse_patient_recording_start_format(ts_str)
+        # Assert
+        assert result.day == 10
+
+    def test_parse_rec_start_format_parses_hour(self):
+        # Arrange
+        from scitex_datetime import parse_patient_recording_start_format
+
+        ts_str = "10/06/2010, 07:40:34"
+        # Act
+        result = parse_patient_recording_start_format(ts_str)
+        # Assert
+        assert result.hour == 7
+
+    def test_parse_rec_start_format_parses_minute(self):
+        # Arrange
+        from scitex_datetime import parse_patient_recording_start_format
+
+        ts_str = "10/06/2010, 07:40:34"
+        # Act
+        result = parse_patient_recording_start_format(ts_str)
+        # Assert
+        assert result.minute == 40
+
+    def test_parse_rec_start_format_parses_second(self):
+        # Arrange
+        from scitex_datetime import parse_patient_recording_start_format
+
+        ts_str = "10/06/2010, 07:40:34"
+        # Act
+        result = parse_patient_recording_start_format(ts_str)
+        # Assert
+        assert result.second == 34
+
+    def test_parse_rec_start_invalid_format_raises_valueerror(self):
+        # Arrange
+        from scitex_datetime import parse_patient_recording_start_format
+
+        # Act
+        # Assert
         with pytest.raises(ValueError):
             parse_patient_recording_start_format("2010-06-10 07:40:34")
 
 
 class TestGetTimeDeltaSeconds:
-    """Test suite for get_time_delta_seconds function"""
+    """get_time_delta_seconds returns elapsed seconds between timestamps."""
 
-    def test_get_delta_positive(self):
-        """Test positive time delta"""
+    def test_get_delta_returns_positive_for_forward_range(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = datetime(2010, 6, 18, 10, 0, 0)
         end = datetime(2010, 6, 18, 10, 1, 0)
-
+        # Act
         result = get_time_delta_seconds(start, end)
-
+        # Assert
         assert result == 60.0
 
-    def test_get_delta_negative(self):
-        """Test negative time delta (end before start)"""
+    def test_get_delta_returns_negative_when_end_before_start(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = datetime(2010, 6, 18, 10, 1, 0)
         end = datetime(2010, 6, 18, 10, 0, 0)
-
+        # Act
         result = get_time_delta_seconds(start, end)
-
+        # Assert
         assert result == -60.0
 
-    def test_get_delta_with_strings(self):
-        """Test time delta with string inputs"""
+    def test_get_delta_with_string_inputs_returns_expected_seconds(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = "2010-06-18 10:00:00"
         end = "2010-06-18 10:01:00"
-
+        # Act
         result = get_time_delta_seconds(start, end)
-
+        # Assert
         assert result == 60.0
 
-    def test_get_delta_mixed_inputs(self):
-        """Test time delta with mixed input types"""
+    def test_get_delta_with_mixed_inputs_returns_expected_seconds(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = datetime(2010, 6, 18, 10, 0, 0)
         end = "2010-06-18 11:00:00"
-
+        # Act
         result = get_time_delta_seconds(start, end)
+        # Assert
+        assert result == 3600.0
 
-        assert result == 3600.0  # 1 hour
-
-    def test_get_delta_same_time(self):
-        """Test time delta when start equals end"""
+    def test_get_delta_returns_zero_when_start_equals_end(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         dt = datetime(2010, 6, 18, 10, 0, 0)
-
+        # Act
         result = get_time_delta_seconds(dt, dt)
-
+        # Assert
         assert result == 0.0
 
-    def test_get_delta_large_difference(self):
-        """Test time delta with large time difference"""
+    def test_get_delta_returns_seconds_for_one_year_span(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = datetime(2010, 1, 1, 0, 0, 0)
-        end = datetime(2011, 1, 1, 0, 0, 0)  # 1 year later
-
+        end = datetime(2011, 1, 1, 0, 0, 0)
+        expected = 365 * 24 * 60 * 60
+        # Act
         result = get_time_delta_seconds(start, end)
+        # Assert
+        assert result == pytest.approx(expected, rel=0.01)
 
-        # Should be approximately 365 days in seconds
-        assert result == pytest.approx(365 * 24 * 60 * 60, rel=0.01)
-
-    def test_get_delta_with_microseconds(self):
-        """Test time delta with microsecond precision"""
+    def test_get_delta_with_microsecond_inputs_returns_half_second(self):
+        # Arrange
         from scitex_datetime import get_time_delta_seconds
 
         start = datetime(2010, 6, 18, 10, 0, 0, 0)
-        end = datetime(2010, 6, 18, 10, 0, 0, 500000)  # 0.5 seconds
-
+        end = datetime(2010, 6, 18, 10, 0, 0, 500000)
+        # Act
         result = get_time_delta_seconds(start, end)
-
+        # Assert
         assert result == 0.5
 
 
 class TestConstants:
-    """Test suite for module constants"""
+    """STANDARD_FORMAT and ALTERNATIVE_FORMATS module constants."""
 
-    def test_standard_format_defined(self):
-        """Test that STANDARD_FORMAT is defined"""
+    def test_standard_format_is_defined(self):
+        # Arrange
         from scitex_datetime import STANDARD_FORMAT
 
-        assert STANDARD_FORMAT is not None
-        assert isinstance(STANDARD_FORMAT, str)
-        assert "%" in STANDARD_FORMAT
+        # Act
+        value = STANDARD_FORMAT
+        # Assert
+        assert value is not None
 
-    def test_alternative_formats_defined(self):
-        """Test that ALTERNATIVE_FORMATS is defined and non-empty"""
+    def test_standard_format_is_str_type(self):
+        # Arrange
+        from scitex_datetime import STANDARD_FORMAT
+
+        # Act
+        value = STANDARD_FORMAT
+        # Assert
+        assert isinstance(value, str)
+
+    def test_standard_format_contains_strftime_directive(self):
+        # Arrange
+        from scitex_datetime import STANDARD_FORMAT
+
+        # Act
+        value = STANDARD_FORMAT
+        # Assert
+        assert "%" in value
+
+    def test_alternative_formats_is_defined(self):
+        # Arrange
         from scitex_datetime import ALTERNATIVE_FORMATS
 
-        assert ALTERNATIVE_FORMATS is not None
-        assert isinstance(ALTERNATIVE_FORMATS, list)
-        assert len(ALTERNATIVE_FORMATS) > 0
-        assert all(isinstance(fmt, str) for fmt in ALTERNATIVE_FORMATS)
+        # Act
+        value = ALTERNATIVE_FORMATS
+        # Assert
+        assert value is not None
+
+    def test_alternative_formats_is_list_type(self):
+        # Arrange
+        from scitex_datetime import ALTERNATIVE_FORMATS
+
+        # Act
+        value = ALTERNATIVE_FORMATS
+        # Assert
+        assert isinstance(value, list)
+
+    def test_alternative_formats_is_non_empty(self):
+        # Arrange
+        from scitex_datetime import ALTERNATIVE_FORMATS
+
+        # Act
+        value = ALTERNATIVE_FORMATS
+        # Assert
+        assert len(value) > 0
+
+    def test_alternative_formats_contains_only_strings(self):
+        # Arrange
+        from scitex_datetime import ALTERNATIVE_FORMATS
+
+        # Act
+        value = ALTERNATIVE_FORMATS
+        # Assert
+        assert all(isinstance(fmt, str) for fmt in value)
 
 
-class TestEdgeCases:
-    """Test edge cases and boundary conditions"""
+class TestEdgeCasesEpoch:
+    """Edge cases at the Unix epoch boundary."""
 
-    def test_epoch_timestamp(self):
-        """Test with Unix epoch (0)"""
+    def test_epoch_timestamp_zero_parses_to_year_1970(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
+        # Act
         result = to_datetime(0)
-
+        # Assert
         assert result.year == 1970
+
+    def test_epoch_timestamp_zero_parses_to_january(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        # Act
+        result = to_datetime(0)
+        # Assert
         assert result.month == 1
+
+    def test_epoch_timestamp_zero_parses_to_first_day(self):
+        # Arrange
+        from scitex_datetime import to_datetime
+
+        # Act
+        result = to_datetime(0)
+        # Assert
         assert result.day == 1
 
-    def test_large_timestamp(self):
-        """Test with large Unix timestamp"""
+
+class TestEdgeCasesLargeAndNegativeTimestamps:
+    """Edge cases at extreme Unix timestamp values."""
+
+    def test_large_timestamp_for_year_2100_parses_to_correct_year(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
-        # Year 2100
         large_ts = 4102444800
+        # Act
         result = to_datetime(large_ts)
-
+        # Assert
         assert result.year == 2100
 
-    def test_negative_timestamp(self):
-        """Test with negative Unix timestamp (before epoch)"""
+    def test_negative_timestamp_for_year_1969_parses_to_correct_year(self):
+        # Arrange
         from scitex_datetime import to_datetime
 
-        # 1969
         neg_ts = -31536000
+        # Act
         result = to_datetime(neg_ts)
-
+        # Assert
         assert result.year == 1969
 
-    def test_microsecond_precision_preserved(self):
-        """Test that microsecond precision is preserved"""
+
+class TestEdgeCasesMicrosecondPreservation:
+    """normalize_timestamp preserves microsecond precision on datetime input."""
+
+    def test_microsecond_precision_preserved_through_normalize(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         dt = datetime(2010, 6, 18, 10, 15, 0, 123456)
+        # Act
         result = normalize_timestamp(dt, return_as="datetime", normalize_utc=False)
-
+        # Assert
         assert result.microsecond == 123456
 
-    def test_roundtrip_datetime_timestamp_datetime(self):
-        """Test roundtrip: datetime -> timestamp -> datetime"""
+
+class TestEdgeCasesRoundtrip:
+    """normalize_timestamp roundtrip datetime -> timestamp -> datetime."""
+
+    def test_roundtrip_datetime_timestamp_datetime_preserves_year(self):
+        # Arrange
         from scitex_datetime import normalize_timestamp
 
         original = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
-
-        # Convert to timestamp
         ts = normalize_timestamp(original, return_as="timestamp")
-
-        # Convert back to datetime
+        # Act
         result = normalize_timestamp(ts, return_as="datetime")
-
+        # Assert
         assert result.year == original.year
+
+    def test_roundtrip_datetime_timestamp_datetime_preserves_month(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        original = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        ts = normalize_timestamp(original, return_as="timestamp")
+        # Act
+        result = normalize_timestamp(ts, return_as="datetime")
+        # Assert
         assert result.month == original.month
+
+    def test_roundtrip_datetime_timestamp_datetime_preserves_day(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        original = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        ts = normalize_timestamp(original, return_as="timestamp")
+        # Act
+        result = normalize_timestamp(ts, return_as="datetime")
+        # Assert
         assert result.day == original.day
+
+    def test_roundtrip_datetime_timestamp_datetime_preserves_hour(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        original = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        ts = normalize_timestamp(original, return_as="timestamp")
+        # Act
+        result = normalize_timestamp(ts, return_as="datetime")
+        # Assert
         assert result.hour == original.hour
+
+    def test_roundtrip_datetime_timestamp_datetime_preserves_minute(self):
+        # Arrange
+        from scitex_datetime import normalize_timestamp
+
+        original = datetime(2010, 6, 18, 10, 15, 0, tzinfo=timezone.utc)
+        ts = normalize_timestamp(original, return_as="timestamp")
+        # Act
+        result = normalize_timestamp(ts, return_as="datetime")
+        # Assert
         assert result.minute == original.minute
 
 
@@ -537,307 +1036,6 @@ if __name__ == "__main__":
 # #!/usr/bin/env python3
 # # Timestamp: "2026-01-05 14:30:00 (ywatanabe)"
 # # File: /home/ywatanabe/proj/scitex-code/src/scitex/datetime/_normalize_timestamp.py
-#
-# """
-# Timestamp Standardization Utilities
-#
-# Functionality:
-# - Standardizes timestamps to consistent format defined in CONFIG.FORMATS.TIMESTAMP
-# - Handles various input formats (datetime objects, strings, timestamps)
-# - Provides UTC normalization
-# - Ensures consistent timestamp formatting across the codebase
-#
-# Input formats supported:
-# - datetime objects (with or without timezone)
-# - Unix timestamps (int/float)
-# - Various string formats
-#
-# Output:
-# - Standardized timestamp strings in format: "%Y-%m-%d %H:%M:%S.%f"
-# - UTC normalized timestamps
-# - Validation utilities
-#
-# Prerequisites:
-# - CONFIG.FORMATS.TIMESTAMP for standard format
-# """
-#
-# from __future__ import annotations
-#
-# import re
-# from datetime import datetime, timezone
-# from typing import Union
-#
-# # Default standard format
-# DEFAULT_FORMAT = "%Y-%m-%d %H:%M:%S"
-#
-# # Try to get standard format from config, fallback to default
-# try:
-#     import scitex as stx
-#
-#     CONFIG = stx.io.load_configs()
-#     STANDARD_FORMAT = (
-#         getattr(getattr(CONFIG, "FORMATS", None), "TIMESTAMP", None) or DEFAULT_FORMAT
-#     )
-# except Exception:
-#     STANDARD_FORMAT = DEFAULT_FORMAT
-#
-# # Common alternative formats to try when parsing
-# ALTERNATIVE_FORMATS = [
-#     "%Y-%m-%dT%H:%M:%S.%f",
-#     "%Y-%m-%dT%H:%M:%S",  # ISO 8601 with T (no microseconds)
-#     "%Y-%m-%d %H:%M:%S.%f",
-#     "%Y-%m-%d %H:%M:%S",
-#     "%Y/%m/%d %H:%M:%S.%f",
-#     "%Y/%m/%d %H:%M:%S",
-#     "%d-%m-%Y %H:%M:%S.%f",
-#     "%d-%m-%Y %H:%M:%S",
-#     "%d/%m/%Y %H:%M:%S.%f",
-#     "%d/%m/%Y %H:%M:%S",
-#     "%d/%m/%Y, %H:%M:%S",  # Format used in REC_START
-#     "%Y%m%d %H:%M:%S.%f",
-#     "%Y%m%d %H:%M:%S",
-#     "%Y-%m-%d_%H:%M:%S.%f",
-#     "%Y-%m-%d_%H:%M:%S",
-# ]
-#
-#
-# def normalize_timestamp(
-#     timestamp: Union[datetime, str, int, float],
-#     return_as: str = "str",
-#     normalize_utc: bool = True,
-# ) -> Union[str, datetime, float]:
-#     """
-#     Standardize any timestamp format to requested output type.
-#
-#     Parameters
-#     ----------
-#     timestamp : datetime, str, int, or float
-#         Timestamp in any supported format
-#     return_as : str
-#         Output format: "str" (default), "datetime", or "timestamp"
-#     normalize_utc : bool
-#         If True, normalize to UTC timezone
-#
-#     Returns
-#     -------
-#     str, datetime, or float
-#         Standardized timestamp in requested format:
-#         - "str": String in CONFIG.FORMATS.TIMESTAMP format
-#         - "datetime": datetime object
-#         - "timestamp": Unix timestamp (float)
-#
-#     Examples
-#     --------
-#     >>> from datetime import datetime
-#     >>> dt = datetime(2010, 6, 18, 10, 15, 0)
-#     >>> normalize_timestamp(dt, return_as="str", normalize_utc=False)
-#     '2010-06-18 10:15:00'
-#     """
-#     # Convert to datetime object
-#     dt = to_datetime(timestamp)
-#
-#     # Normalize to UTC if requested
-#     if normalize_utc:
-#         if dt.tzinfo is None:
-#             dt = dt.replace(tzinfo=timezone.utc)
-#         else:
-#             dt = dt.astimezone(timezone.utc)
-#
-#     # Return in requested format
-#     if return_as == "str":
-#         return dt.strftime(STANDARD_FORMAT)
-#     elif return_as == "datetime":
-#         return dt
-#     elif return_as == "timestamp":
-#         return dt.timestamp()
-#     else:
-#         raise ValueError(
-#             f"return_as must be 'str', 'datetime', or 'timestamp', got: {return_as}"
-#         )
-#
-#
-# def to_datetime(timestamp: Union[datetime, str, int, float]) -> datetime:
-#     """
-#     Convert various timestamp formats to datetime object.
-#
-#     Parameters
-#     ----------
-#     timestamp : datetime, str, int, or float
-#         Timestamp in any supported format
-#
-#     Returns
-#     -------
-#     datetime
-#         Datetime object
-#
-#     Raises
-#     ------
-#     ValueError
-#         If string format cannot be parsed
-#     TypeError
-#         If timestamp type is not supported
-#     """
-#     # Already datetime
-#     if isinstance(timestamp, datetime):
-#         return timestamp
-#
-#     # Unix timestamp (int/float)
-#     elif isinstance(timestamp, (int, float)):
-#         return datetime.fromtimestamp(timestamp, tz=timezone.utc)
-#
-#     # String format
-#     elif isinstance(timestamp, str):
-#         # Handle nanosecond precision by truncating to microseconds
-#         if "." in timestamp and len(timestamp.split(".")[-1]) > 6:
-#             parts = timestamp.split(".")
-#             # Keep only first 6 digits of fractional seconds
-#             truncated_microseconds = parts[-1][:6]
-#             # Handle cases where there might be additional text after microseconds
-#             if not truncated_microseconds.isdigit():
-#                 # Extract just the digit portion
-#                 digits = re.match(r"(\d+)", parts[-1])
-#                 if digits:
-#                     truncated_microseconds = digits.group(1)[:6]
-#             timestamp = ".".join(parts[:-1] + [truncated_microseconds])
-#
-#         # Try parsing with various formats
-#         for fmt in ALTERNATIVE_FORMATS:
-#             try:
-#                 return datetime.strptime(timestamp, fmt)
-#             except ValueError:
-#                 continue
-#
-#         # If no format matched, raise error
-#         raise ValueError(
-#             f"Could not parse timestamp string: {timestamp}. "
-#             f"Tried formats: {ALTERNATIVE_FORMATS}"
-#         )
-#
-#     else:
-#         raise TypeError(
-#             f"timestamp must be datetime, str, int, or float, got: {type(timestamp)}"
-#         )
-#
-#
-# def validate_timestamp_format(timestamp_str: str) -> bool:
-#     """
-#     Validate that a timestamp string matches the standard format.
-#
-#     Parameters
-#     ----------
-#     timestamp_str : str
-#         Timestamp string to validate
-#
-#     Returns
-#     -------
-#     bool
-#         True if string matches standard format
-#     """
-#     try:
-#         datetime.strptime(timestamp_str, STANDARD_FORMAT)
-#         return True
-#     except (ValueError, TypeError):
-#         return False
-#
-#
-# def format_for_filename(timestamp: Union[datetime, str]) -> str:
-#     """
-#     Format timestamp for use in filenames (no spaces or colons).
-#
-#     Parameters
-#     ----------
-#     timestamp : datetime or str
-#         Timestamp to format
-#
-#     Returns
-#     -------
-#     str
-#         Filename-safe timestamp string (YYYYMMDD_HHMMSS)
-#
-#     Examples
-#     --------
-#     >>> from datetime import datetime
-#     >>> dt = datetime(2010, 6, 18, 10, 15, 0)
-#     >>> format_for_filename(dt)
-#     '20100618_101500'
-#     """
-#     dt = to_datetime(timestamp)
-#     return dt.strftime("%Y%m%d_%H%M%S")
-#
-#
-# def format_for_display(timestamp: Union[datetime, str]) -> str:
-#     """
-#     Format timestamp for human-readable display.
-#
-#     Parameters
-#     ----------
-#     timestamp : datetime or str
-#         Timestamp to format
-#
-#     Returns
-#     -------
-#     str
-#         Human-readable timestamp string
-#
-#     Examples
-#     --------
-#     >>> from datetime import datetime
-#     >>> dt = datetime(2010, 6, 18, 10, 15, 0)
-#     >>> format_for_display(dt)
-#     '2010-06-18 10:15:00'
-#     """
-#     dt = to_datetime(timestamp)
-#     return dt.strftime("%Y-%m-%d %H:%M:%S")
-#
-#
-# def parse_patient_recording_start_format(
-#     patient_recording_start_str: str,
-# ) -> datetime:
-#     """
-#     Parse recording start time from CONFIG.PATIENTS.REC_START format.
-#
-#     Parameters
-#     ----------
-#     patient_recording_start_str : str
-#         Recording start time string in format "DD/MM/YYYY, HH:MM:SS"
-#
-#     Returns
-#     -------
-#     datetime
-#         Parsed datetime object
-#
-#     Examples
-#     --------
-#     >>> parse_patient_recording_start_format("10/06/2010, 07:40:34")
-#     datetime.datetime(2010, 6, 10, 7, 40, 34)
-#     """
-#     REC_START_FORMAT = "%d/%m/%Y, %H:%M:%S"
-#     return datetime.strptime(patient_recording_start_str, REC_START_FORMAT)
-#
-#
-# def get_time_delta_seconds(
-#     start: Union[datetime, str], end: Union[datetime, str]
-# ) -> float:
-#     """
-#     Calculate time difference in seconds between two timestamps.
-#
-#     Parameters
-#     ----------
-#     start : datetime or str
-#         Start timestamp
-#     end : datetime or str
-#         End timestamp
-#
-#     Returns
-#     -------
-#     float
-#         Time difference in seconds
-#     """
-#     start_dt = to_datetime(start)
-#     end_dt = to_datetime(end)
-#     delta = end_dt - start_dt
-#     return delta.total_seconds()
-#
 #
 # # EOF
 

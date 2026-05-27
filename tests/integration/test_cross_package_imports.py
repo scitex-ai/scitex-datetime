@@ -26,6 +26,11 @@ CROSS_PACKAGE_IMPORTS = [
 
 
 @pytest.mark.parametrize("module_name", CROSS_PACKAGE_IMPORTS)
-def test_cross_package_import(module_name):
+def test_cross_package_import_succeeds_when_module_available(module_name):
     """Importing scitex-datetime's declared cross-package dependency must succeed."""
-    pytest.importorskip(module_name)
+    # Arrange
+    target_module = module_name
+    # Act
+    module = pytest.importorskip(target_module)
+    # Assert
+    assert module is not None
