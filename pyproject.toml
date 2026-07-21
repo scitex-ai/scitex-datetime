@@ -39,6 +39,7 @@ all = [
     # DEFAULT_FORMAT ("%Y-%m-%d %H:%M:%S"). Imported via
     # try_import_optional in _normalize_timestamp.py.
     "scitex-io",
+    "scitex-datetime[dev]",
 ]
 # Tier 3 — maintainer tooling. NOT duplicated against [project.dependencies]
 # (pip install -e ".[dev]" walks default deps automatically). Sphinx
