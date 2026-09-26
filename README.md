@@ -14,35 +14,19 @@
 
 <!-- scitex-badges:start -->
 <p align="center">
-  <a href="https://pypi.org/project/scitex-datetime/"><img src="https://img.shields.io/pypi/v/scitex-datetime.svg" alt="PyPI"></a>
-  <a href="https://pypi.org/project/scitex-datetime/"><img src="https://img.shields.io/pypi/pyversions/scitex-datetime.svg" alt="Python"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-datetime/actions/workflows/test.yml"><img src="https://github.com/ywatanabe1989/scitex-datetime/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="https://codecov.io/gh/ywatanabe1989/scitex-datetime"><img src="https://codecov.io/gh/ywatanabe1989/scitex-datetime/graph/badge.svg" alt="Coverage"></a>
-  <a href="https://scitex-datetime.readthedocs.io/en/latest/"><img src="https://readthedocs.org/projects/scitex-datetime/badge/?version=latest" alt="Docs"></a>
-  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/license-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
+  <a href="https://pypi.org/project/scitex-datetime/"><img src="https://img.shields.io/pypi/v/scitex-datetime?label=pypi" alt="pypi"></a>
+  <a href="https://pypi.org/project/scitex-datetime/"><img src="https://img.shields.io/pypi/pyversions/scitex-datetime?label=python" alt="python"></a>
+  <a href="https://github.com/scitex-ai/scitex-datetime/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/scitex-ai/scitex-datetime/ci.yml?branch=develop&label=docs" alt="docs"></a>
+  <a href="https://scitex-datetime.readthedocs.io/en/latest/"><img src="https://img.shields.io/readthedocs/scitex-datetime?label=docs" alt="docs-rtd"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/scitex-ai/scitex-datetime/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/scitex-ai/scitex-datetime/ci.yml?branch=develop&label=tests" alt="tests"></a>
+  <a href="https://github.com/scitex-ai/scitex-datetime/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/scitex-ai/scitex-datetime/ci.yml?branch=develop&label=install-check" alt="install-check"></a>
+  <a href="https://codecov.io/gh/scitex-ai/scitex-datetime"><img src="https://img.shields.io/codecov/c/github/scitex-ai/scitex-datetime/develop?label=cov" alt="cov"></a>
 </p>
 <!-- scitex-badges:end -->
 
 ---
-
-## Installation
-
-```bash
-pip install scitex-datetime
-```
-
-## Architecture
-
-```
-scitex_datetime/
-├── __init__.py                ← public API (linspace, normalize_timestamp,
-│                                 to_datetime, format_for_filename, ...)
-├── _linspace.py               ← linearly-spaced datetime arrays
-└── _normalize_timestamp.py    ← parse + standardize heterogeneous strings
-```
-
-Pure-stdlib datetime helpers; the umbrella `scitex.datetime` import path
-is preserved via a `sys.modules`-alias bridge.
 
 ## Quick Start
 
@@ -52,6 +36,59 @@ import scitex_datetime as sxd
 dt = sxd.to_datetime("2026/04/27 10:30:00")
 print(sxd.format_for_filename(dt))   # "2026-04-27_103000"
 ```
+
+## Demo
+
+```mermaid
+flowchart LR
+    S1["'2026/04/27 10:30:00'"] --> P["sxd.to_datetime()"]
+    S2["'2026-04-27T10:30:00'"] --> N["sxd.normalize_timestamp()"]
+    P --> D["datetime"]
+    N --> D
+    D --> F["sxd.format_for_filename()<br/>→ '2026-04-27_103000'"]
+    A["start, stop"] --> L["sxd.linspace(num=100)"]
+    L --> R["[datetime, ...]"]
+```
+
+<p align="center"><sub><b>Figure 1.</b> Demo path. Parse and normalize converge on datetimes, then format for filenames; linspace covers ranges.</sub></p>
+
+## Installation
+
+```bash
+uv pip install "scitex-datetime[all]"
+```
+
+<details>
+<summary><b>Per-module extras</b></summary>
+
+<br>
+
+| Extra | Pulls in |
+|---|---|
+| `all` | scitex-io + `dev` (recommended) |
+| `dev` | pytest, pytest-cov, ruff, Sphinx (maintainer tooling) |
+
+```bash
+uv pip install -e ".[dev]"               # editable install for contributors
+```
+
+</details>
+## Architecture
+
+```mermaid
+flowchart LR
+    Raw[heterogeneous strings] --> Parse[to_datetime / normalize_timestamp]
+    Parse --> Std[standardized datetime]
+    Std --> Display[format_for_display]
+    Std --> File[format_for_filename]
+    Range[start, stop] --> Lin[linspace]
+    Lin --> Arr[[datetime, ...]]
+```
+
+<p align="center"><sub><b>Figure 2.</b> Helper flow. Raw strings parse to standard datetimes for display or filenames; linspace builds uniform arrays.</sub></p>
+
+Pure-stdlib datetime helpers; the umbrella `scitex.datetime` import path
+is preserved via a `sys.modules`-alias bridge.
 
 ## 1 Interfaces
 
@@ -80,19 +117,6 @@ sxd.get_time_delta_seconds(dt1, dt2)
 ```
 
 </details>
-
-## Demo
-
-```mermaid
-flowchart LR
-    S1["'2026/04/27 10:30:00'"] --> P["sxd.to_datetime()"]
-    S2["'2026-04-27T10:30:00'"] --> N["sxd.normalize_timestamp()"]
-    P --> D["datetime"]
-    N --> D
-    D --> F["sxd.format_for_filename()<br/>→ '2026-04-27_103000'"]
-    A["start, stop"] --> L["sxd.linspace(num=100)"]
-    L --> R["[datetime, ...]"]
-```
 
 ## Status
 

@@ -16,6 +16,8 @@ in its source tree. Two outcomes:
   (which installs every peer) catches cross-package renames.
 """
 
+import importlib
+
 import pytest
 
 # ===== AUTO-GENERATED: cross-package imports =====
@@ -29,11 +31,13 @@ CROSS_PACKAGE_IMPORTS = [
 def test_cross_package_dependency_module_importable(module_name):
     """Importing scitex-datetime's declared cross-package dependency must succeed."""
     # Arrange
-    # `pytest.importorskip` returns the module if installed, else skips
-    # — so the parametrise row only runs when the peer is present.
-    module = pytest.importorskip(module_name)
+    # Skip on the ROOT only — `importorskip` on the full path would
+    # report a renamed submodule as merely absent (skip) instead of
+    # failing loudly, which is the exact failure this gate exists to catch.
+    pytest.importorskip(module_name.split(".")[0])
 
     # Act
+    module = importlib.import_module(module_name)
     imported_name = getattr(module, "__name__", None)
 
     # Assert
