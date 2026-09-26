@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scitex-datetime"
-version = "0.1.4"
+version = "0.1.5"
 description = "Datetime helpers (linspace, normalize_timestamp, format helpers) — standalone module from the SciTeX ecosystem"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -39,6 +39,7 @@ all = [
     # DEFAULT_FORMAT ("%Y-%m-%d %H:%M:%S"). Imported via
     # try_import_optional in _normalize_timestamp.py.
     "scitex-io",
+    "scitex-datetime[dev]",
 ]
 # Tier 3 — maintainer tooling. NOT duplicated against [project.dependencies]
 # (pip install -e ".[dev]" walks default deps automatically). Sphinx
@@ -69,9 +70,17 @@ scitex_datetime = ["_skills/**/*.md"]
 [project.entry-points."scitex_dev.skills"]
 scitex-datetime = "scitex_datetime"
 
+[tool.scitex_dev]
+no_cli = true
+no_e2e = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--disable-warnings"]
+markers = [
+    "smoke: fast subprocess-driven CLI happy-path tests",
+    "e2e: slow end-to-end workflows against real subsystems (RUN_E2E=1)",
+]
 
 [tool.coverage.run]
 parallel = true
