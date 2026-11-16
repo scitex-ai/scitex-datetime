@@ -42,13 +42,20 @@ all = [
     "scitex-datetime[dev]",
 ]
 # Tier 3 — maintainer tooling. NOT duplicated against [project.dependencies]
-# (pip install -e ".[dev]" walks default deps automatically). Sphinx
-# tooling lives here because doc-build is a maintainer concern, not a
-# user-facing runtime feature.
+# (pip install -e ".[dev]" walks default deps automatically).
 dev = [
     "pytest",
     "pytest-cov",
     "ruff",
+]
+
+# PEP 735 groups are not published to consumers' metadata. The sphinx
+# toolchain is a maintainer concern, so it lives in the `docs` group
+# (operator ruling 2026-08-31: dev/docs are dependency groups, not
+# extras). CI installs it with `uv pip install -e . --group docs`
+# (ci.yml: rtd-sphinx-build `dependency_group: docs`).
+[dependency-groups]
+docs = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=2.0",
     "myst-parser>=2.0",
